@@ -16,6 +16,14 @@ const typeColors = {
   steel:'#B7B7CE', fairy:'#D685AD'
 };
 
+const typeTranslations = {
+  normal: 'Normal', fire: 'Fogo', water: 'Água', electric: 'Elétrico',
+  grass: 'Grama', ice: 'Gelo', fighting: 'Lutador', poison: 'Venenoso',
+  ground: 'Terra', flying: 'Voador', psychic: 'Psíquico', bug: 'Inseto',
+  rock: 'Pedra', ghost: 'Fantasma', dragon: 'Dragão', dark: 'Sombrio',
+  steel: 'Aço', fairy: 'Fada'
+};
+
 
 let allList = [];
 let nextIndexToLoad = 1;
@@ -26,6 +34,22 @@ const cache = new Map();
 const IS_MOBILE = window.innerWidth < 480;
 const FLAVOR_LIMIT = IS_MOBILE ? 70 : 120;
 const NAME_LIMIT = IS_MOBILE ? 12 : 999;
+
+// Função para traduzir texto usando Google Translate API (via free service)
+async function translateText(text, sourceLang = 'en', targetLang = 'pt') {
+  if (!text) return '';
+  try {
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${sourceLang}|${targetLang}`;
+    const response = await fetch(url);
+    const data = await response.json();
+    if (data.responseStatus === 200 && data.responseData?.translatedText) {
+      return data.responseData.translatedText;
+    }
+  } catch (e) {
+    console.error('Erro na tradução:', e);
+  }
+  return text; // Retorna o texto original se falhar
+}
 
 async function init() {
   try {
@@ -78,6 +102,15 @@ async function loadAndRender(id) {
     const d = await res.json();
     const species = await fetch(d.species.url).then(r => r.json()).catch(() => null);
 
+    let flavor = species?.flavor_text_entries
+      ? (species.flavor_text_entries.find(ft => ft.language.name === 'pt') || species.flavor_text_entries.find(ft => ft.language.name === 'en') || {}).flavor_text
+      : '';
+    
+    // Se não encontrou em português, tenta traduzir do inglês
+    if (flavor && !species?.flavor_text_entries?.some(ft => ft.language.name === 'pt')) {
+      flavor = await translateText(flavor, 'en', 'pt');
+    }
+
     const cardData = {
       id: d.id,
       name: d.name,
@@ -87,9 +120,7 @@ async function loadAndRender(id) {
       weight: d.weight,
       height: d.height,
       abilities: d.abilities.map(a => a.ability.name),
-      flavor: species?.flavor_text_entries
-        ? (species.flavor_text_entries.find(ft => ft.language.name === 'en') || {}).flavor_text
-        : ''
+      flavor: flavor
     };
 
     cache.set(id, cardData);
@@ -132,7 +163,7 @@ function renderCard(d) {
     </div>
 
     <div class="types">
-      ${d.types.map(t => `<span class="type-pill" style="color:${typeColors[t] || '#fff'}">${t}</span>`).join('')}
+      ${d.types.map(t => `<span class="type-pill" style="color:${typeColors[t] || '#fff'}">${typeTranslations[t] || t}</span>`).join('')}
     </div>
 
     <div class="detail">${d.flavor ? shorten(d.flavor, FLAVOR_LIMIT) : ''}</div>
@@ -213,64 +244,85 @@ let modalEl = null;
 function showModal(d) {
   if (modalEl) modalEl.remove();
 
+  const primary = d.types[0] || "normal";
+  const bgColor = typeColors[primary] || "#0f172a";
+
+  // overlay
   const m = document.createElement('div');
   m.style.position = 'fixed';
   m.style.inset = 0;
   m.style.display = 'flex';
   m.style.alignItems = 'center';
   m.style.justifyContent = 'center';
-  m.style.background = 'rgba(2,6,23,0.6)';
-  m.style.zIndex = 9999;
+  m.style.background = 'rgba(0,0,0,0.6)';
+  m.style.zIndex = '9999';
 
-  m.innerHTML = `
-    <div style="background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:14px; padding:20px; width:min(720px,95%); color:inherit; position:relative;">
-      <button id='closeModal' style='position:absolute;right:12px;top:12px;background:transparent;border:0;color:inherit;font-size:17px;cursor:pointer'>✕</button>
+  // modal box
+  const box = document.createElement('div');
+  box.style.width = '90%';
+  box.style.maxWidth = '480px';
+  box.style.background = bgColor;      // AGORA MUDA CONFORME TIPO
+  box.style.borderRadius = '18px';
+  box.style.padding = '28px';
+  box.style.color = 'white';
+  box.style.position = 'relative';
+  box.style.boxShadow = '0 0 20px rgba(0,0,0,0.5)';
 
-      <div style='display:flex;gap:18px;align-items:center;flex-wrap:wrap'>
-        <img src='${d.sprite}' alt='${d.name}' style='width:160px;height:160px;object-fit:contain;filter:drop-shadow(0 12px 24px rgba(0,0,0,.6))'>
+  // botão X
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = '×';
+  closeBtn.style.position = 'absolute';
+  closeBtn.style.top = '10px';
+  closeBtn.style.right = '16px';
+  closeBtn.style.fontSize = '36px';
+  closeBtn.style.background = 'transparent';
+  closeBtn.style.border = 'none';
+  closeBtn.style.cursor = 'pointer';
+  closeBtn.style.color = 'white';
+  closeBtn.onclick = () => m.remove();
 
-        <div>
-          <h2 style='margin:0;text-transform:capitalize'>
-            ${d.name}
-            <span style='opacity:.7;font-weight:600'>#${String(d.id).padStart(3,'0')}</span>
-          </h2>
+  box.appendChild(closeBtn);
 
-          <div style='margin-top:6px'>
-            ${d.types.map(t => `<span style='padding:6px 8px;border-radius:999px;margin-right:8px;background:rgba(255,255,255,0.04);color:${typeColors[t]}'>${t}</span>`).join('')}
-          </div>
+  // conteúdo
+  const wrapper = document.createElement('div');
+  wrapper.style.textAlign = 'center';
 
-          <p style='opacity:.9;margin-top:10px'>${escapeHtml(d.flavor)}</p>
+  wrapper.innerHTML = `
+    <img src="${d.sprite}" alt="${d.name}" style="width:180px;height:180px;">
+    <h2 style="margin: 10px 0;">#${String(d.id).padStart(3,'0')} - ${d.name}</h2>
 
-          <div style='display:flex;gap:8px;margin-top:12px;flex-wrap:wrap'>
-            <div style='font-size:13px;background:rgba(255,255,255,0.03);padding:8px;border-radius:8px'>
-              Altura: ${d.height/10}m
-            </div>
-            <div style='font-size:13px;background:rgba(255,255,255,0.03);padding:8px;border-radius:8px'>
-              Peso: ${d.weight/10}kg
-            </div>
-            <div style='font-size:13px;background:rgba(255,255,255,0.03);padding:8px;border-radius:8px'>
-              Habilidades: ${d.abilities.join(', ')}
-            </div>
-          </div>
-        </div>
-      </div>
+    <div style="margin-bottom:12px;">
+      ${d.types.map(t => `
+        <span style="
+          display:inline-block;
+          margin:4px;
+          padding:6px 10px;
+          border-radius:8px;
+          border:1px solid white;
+          color:white;
+          font-weight:bold;
+        ">${typeTranslations[t] || t}</span>
+      `).join('')}
+    </div>
 
-      <div style='margin-top:14px;display:flex;gap:8px;flex-wrap:wrap'>
-        ${d.stats.map(s =>
-          `<div style='background:rgba(255,255,255,0.03);padding:8px;border-radius:10px;font-size:13px'>
-            ${s.name}: ${s.value}
-          </div>`
-        ).join('')}
-      </div>
+    <p style="opacity:0.9; margin-bottom:16px;">
+      ${d.flavor || ''}
+    </p>
+
+    <div style="text-align:left; font-size:15px; display:grid; gap:4px;">
+      ${d.stats.map(s => `
+        <div><strong>${s.name}:</strong> ${s.value}</div>
+      `).join('')}
     </div>
   `;
 
-  m.querySelector('#closeModal').addEventListener('click', () => m.remove());
-  m.addEventListener('click', ev => { if (ev.target === m) m.remove(); });
+  box.appendChild(wrapper);
+  m.appendChild(box);
 
-  document.body.appendChild(m);
   modalEl = m;
+  document.body.appendChild(m);
 }
+
 
 // events
 searchBtn.addEventListener('click', () => search(queryInput.value));
