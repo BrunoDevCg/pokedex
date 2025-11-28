@@ -1,0 +1,255 @@
+
+    :root{
+  --bg:#0f1724; --card-radius:16px; --glass: rgba(255,255,255,0.04);
+  --accent: #ffcb05;
+  --gap: 18px;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:linear-gradient(180deg,#071126 0%, #071b2d 100%);color:#e6eef8}
+header{display:flex;gap:16px;align-items:center;padding:24px;max-width:1200px;margin:0 auto;flex-wrap:wrap}
+h1{margin:0;font-size:26px;letter-spacing:0.4px}
+
+/* Controls */
+.controls{margin-left:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.search{display:flex;gap:8px;align-items:center;background:var(--glass);padding:8px 12px;border-radius:12px;backdrop-filter: blur(6px);flex:1;min-width:240px}
+.search input{background:transparent;border:0;outline:none;color:inherit;padding:6px 8px;font-size:15px;width:100%}
+.btn{background:linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));border:1px solid rgba(255,255,255,0.04);padding:10px 14px;border-radius:10px;color:inherit;cursor:pointer;font-size:14px}
+
+main{max-width:1200px;margin:24px auto;padding:0 18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:var(--gap)}
+
+/* CARD */
+.card {
+  position: relative;
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  padding: 16px;
+  min-height: 190px;
+  display: grid;
+  grid-template-columns: 1fr 140px;
+  gap: 12px;
+  align-items: flex-start;
+  box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+  transition: transform .22s ease, box-shadow .22s ease;
+}
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 48px rgba(2,6,23,0.8);
+}
+
+/* Ornament background element */
+.bg-ornament{
+  position:absolute;
+  inset:0;
+  z-index:0;
+  opacity:0.26;
+  pointer-events:none;
+  background-repeat:no-repeat;
+  background-position:right bottom;
+  background-size: 140% 140%;
+  mix-blend-mode: screen;
+  transition: opacity .3s ease;
+}
+.card:hover .bg-ornament { opacity:0.35; }
+
+/* card-content */
+.card-content {
+  position: relative;
+  z-index: 2;
+  display: contents;
+}
+
+/* left info column */
+.info {
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  min-width:0;
+}
+
+/* meta row */
+.meta{
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+.id{font-weight:700;opacity:.9;font-size:14px;white-space:nowrap}
+.name{font-size:20px;font-weight:700;text-transform:capitalize;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* types */
+.types{display:flex;gap:8px;margin-top:4px;flex-wrap:wrap}
+.type-pill{padding:6px 10px;border-radius:999px;font-size:13px;font-weight:600;backdrop-filter: blur(4px);background:rgba(255,255,255,0.08)}
+
+/* description */
+.detail{
+  font-size:14px;opacity:0.95;line-height:1.25;
+  max-height:78px;
+  overflow:hidden;
+  display:-webkit-box;
+  -webkit-line-clamp:4;
+  -webkit-box-orient:vertical;
+  word-break:break-word;
+}
+
+/* stats */
+.stats{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.stat{font-size:12px;background:rgba(255,255,255,0.06);padding:6px 8px;border-radius:8px;white-space:nowrap}
+
+/* sprite */
+.sprite{
+  width:120px;
+  height:120px;
+  object-fit:contain;
+  justify-self:end;
+  align-self:end;
+  transform-origin:center;
+  animation: float 3s ease-in-out infinite;
+  filter: drop-shadow(0 12px 24px rgba(0,0,0,0.45));
+}
+@keyframes float {
+  0% { transform: translateY(0) }
+  50% { transform: translateY(-8px) }
+  100% { transform: translateY(0) }
+}
+
+/* ORNAMENTS */
+.card.type-fire .bg-ornament {
+  background-image: url('ornaments/fire.svg');
+  animation: fire-move 3.8s linear infinite;
+  background-position: right 10% bottom 10%;
+  background-size: 160% 160%;
+  opacity:0.34;
+}
+@keyframes fire-move {
+  0% { background-position: right 12% bottom 8% }
+  50% { background-position: right 8% bottom 12% }
+  100% { background-position: right 12% bottom 8% }
+}
+
+.card.type-water .bg-ornament {
+  background-image: url('ornaments/water.svg');
+  animation: water-sway 6s linear infinite;
+  background-position: right center;
+  background-size: 160% 160%;
+  opacity:0.30;
+}
+@keyframes water-sway {
+  0% { background-position: right 10% center }
+  50% { background-position: right 0% center }
+  100% { background-position: right 10% center }
+}
+
+.card.type-grass .bg-ornament,
+.card.type-bug .bg-ornament {
+  background-image: url('ornaments/grass.svg');
+  animation: grass-sway 5.6s ease-in-out infinite;
+  background-position: right center;
+  background-size: 150% 150%;
+  opacity:0.28;
+}
+@keyframes grass-sway {
+  0% { background-position: right 6% center }
+  50% { background-position: right 12% center }
+  100% { background-position: right 6% center }
+}
+
+.card.type-flying .bg-ornament {
+  background-image: url('ornaments/flying.svg');
+  animation: wind-move 4.8s linear infinite;
+  background-position: right 10% center;
+  background-size: 160% 160%;
+  opacity:0.26;
+}
+@keyframes wind-move {
+  0% { background-position: right 12% center }
+  50% { background-position: right 6% center }
+  100% { background-position: right 12% center }
+}
+
+.card.type-electric .bg-ornament {
+  background-image: url('ornaments/electric.svg');
+  animation: electric-pulse 2.8s linear infinite;
+  background-position: right center;
+  background-size: 150% 150%;
+  opacity:0.30;
+}
+@keyframes electric-pulse {
+  0% { filter:brightness(0.92) }
+  50% { filter:brightness(1.08) }
+  100% { filter:brightness(0.92) }
+}
+
+/* fallback tint */
+.card.type-fire { background: linear-gradient(135deg,#ffb37a12,#ff5f3812); }
+.card.type-water { background: linear-gradient(135deg,#7ad1ff12,#4b6cff12); }
+.card.type-grass { background: linear-gradient(135deg,#c7f8c233,#41d96c33); }
+
+/* Loader */
+.loader{width:100%;text-align:center;padding:36px 0;color:rgba(255,255,255,0.6)}
+
+/* Responsive */
+@media (max-width:820px) {
+  .card { grid-template-columns: 1fr 120px; min-height:160px; }
+  .sprite { width:100px; height:100px; }
+}
+@media (max-width:600px) {
+  .card { grid-template-columns: 1fr 90px; padding:12px; min-height:150px; }
+  .sprite { width:84px; height:84px; }
+  .detail { -webkit-line-clamp:3; max-height:64px; }
+  .name { font-size:18px; }
+  .card { padding:12px; }
+}
+
+footer{max-width:1200px;margin:30px auto;color:rgba(255,255,255,0.5);font-size:13px;padding:0 18px;text-align:center}
+
+/* ---- BACKGROUNDS LIMPOS, MODERNOS E SEM SVG ---- */
+
+/* template genérico */
+.bg-ornament {
+  position:absolute;
+  inset:0;
+  z-index:0;
+  opacity:0.25;
+  pointer-events:none;
+  background: none;
+}
+
+/* FIRE – ondas laranja e vermelho */
+.card.type-fire .bg-ornament {
+  background:
+    linear-gradient(135deg, #ff6a0066 0%, transparent 60%),
+    linear-gradient(225deg, #ff330066 0%, transparent 70%);
+}
+
+/* WATER – ondas azul escuro + azul claro */
+.card.type-water .bg-ornament {
+  background:
+    linear-gradient(135deg, #009dff55 0%, transparent 60%),
+    linear-gradient(225deg, #0048ff55 0%, transparent 70%);
+}
+
+/* GRASS – ondas verde claro + verde escuro */
+.card.type-grass .bg-ornament,
+.card.type-bug   .bg-ornament {
+  background:
+    linear-gradient(135deg, #00c96955 0%, transparent 60%),
+    linear-gradient(225deg, #00994455 0%, transparent 70%);
+}
+
+/* ELECTRIC – ondas amarelo claro vibrante */
+.card.type-electric .bg-ornament {
+  background:
+    linear-gradient(135deg, #ffe60055 0%, transparent 60%),
+    linear-gradient(225deg, #ffb80055 0%, transparent 70%);
+}
+
+/* FLYING – ondas azul acinzentado suaves */
+.card.type-flying .bg-ornament {
+  background:
+    linear-gradient(135deg, #90b0ff44 0%, transparent 60%),
+    linear-gradient(225deg, #597fff44 0%, transparent 70%);
+}
+
+
+  

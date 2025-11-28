@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pokédex — Modern</title>
+  <link rel="stylesheet" href="styles.css">
+  
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Pokédex Modern</h1>
+      <div style="opacity:.7;font-size:13px">Busque por número (#) ou nome — cartões coloridos por tipo</div>
+    </div>
+
+    <div class="controls">
+      <div class="search">
+        <input id="query" placeholder="#numero ou nome (ex: 25 ou pikachu)" autocomplete="off" />
+        <button class="btn" id="searchBtn">Buscar</button>
+      </div>
+      <button class="btn" id="resetBtn">Reset</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="grid" class="grid"></div>
+    <div id="loader" class="loader">Carregando Pokémon...</div>
+    <div style="text-align:center;margin-top:20px"><button class="btn" id="loadMore">Carregar mais</button></div>
+  </main>
+
+  <footer>Dados via <a href="https://pokeapi.co" target="_blank" style="color:var(--accent)">PokeAPI</a>. Projeto single-file — abra localmente em seu navegador.</footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
